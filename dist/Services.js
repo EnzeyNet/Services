@@ -20,11 +20,11 @@
 			return childElems;
 		};
 
-		this.registerClickAwayAction = function(clickedAwayAction) {
+		this.registerClickAwayAction = function(element, clickAwayAction) {
 			var wrappedClickAwayAction  = function(event) {
-				if (getChildElems(contextObj).indexOf(event.target) === -1) {
+				if (getChildElems(element).indexOf(event.target) === -1) {
 					$document.off('click', clickAwayAction);
-					clickedAwayAction(event);
+					clickAwayAction(event);
 				}
 			};
 			$timeout(function() {
@@ -34,4 +34,4 @@
 
 	});
 
-});
+})(angular);
