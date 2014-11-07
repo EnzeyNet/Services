@@ -20,9 +20,9 @@
 			return childElems;
 		};
 
-		this.registerClickAwayAction = function(element, clickAwayAction) {
+		this.registerClickAwayAction = function(contextElem, clickAwayAction) {
 			var wrappedClickAwayAction  = function(event) {
-				if (getChildElems(element).indexOf(event.target) === -1) {
+				if (getChildElems(contextElem).indexOf(event.target) === -1) {
 					$document.off('click', clickAwayAction);
 					clickAwayAction(event);
 				}
