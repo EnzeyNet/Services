@@ -21,9 +21,10 @@
 		};
 
 		this.registerClickAwayAction = function(contextElem, clickAwayAction) {
-			var wrappedClickAwayAction  = function(event) {
+			var wrappedClickAwayAction = null;
+			wrappedClickAwayAction  = function(event) {
 				if (getChildElems(contextElem).indexOf(event.target) === -1) {
-					$document.off('click', clickAwayAction);
+					$document.off('click', wrappedClickAwayAction);
 					clickAwayAction(event);
 				}
 			};
