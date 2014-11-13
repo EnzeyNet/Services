@@ -3,7 +3,7 @@
 
 	var module = angular.module('net.enzey.services', []);
 
-	module.service('nzService', function ($document, $timeout) {
+	module.service('nzService', ['$document', '$timeout', function ($document, $timeout) {
 		// position flyout
 
 		var getChildElems = function(elem) {
@@ -20,10 +20,20 @@
 			return childElems;
 		};
 
-		this.registerClickAwayAction = function(contextElem, clickAwayAction) {
+		this.registerClickAwayAction = function(clickAwayAction) {
 			var wrappedClickAwayAction = null;
+			var parentElems = [];
+			for (var i = 1; i < arguments.length; i++) {
+				parentElems.push(arguments[i]);
+			}
 			wrappedClickAwayAction  = function(event) {
-				if (getChildElems(contextElem).indexOf(event.target) === -1) {
+				var allElements = [];
+				parentElems.forEach(function(parentElem) {
+					getChildElems(parentElem).forEach(function (elem) {
+						allElements.push(elem);
+					});
+				});
+				if (allElements.indexOf(event.target) === -1) {
 					$document.off('click', wrappedClickAwayAction);
 					clickAwayAction(event);
 				}
@@ -33,6 +43,6 @@
 			});
 		};
 
-	});
+	}]);
 
 })(angular);
