@@ -45,4 +45,14 @@
 
 	}]);
 
+	module.directive('nzIncludeTransclude', function() {
+		return {
+			restrict: "A",
+			transclude: true,
+			templateUrl: function(element, attrs) {
+				return attrs[this.name];
+			},
+		}
+	});
+
 })(angular);
