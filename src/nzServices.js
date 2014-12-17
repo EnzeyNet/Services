@@ -43,14 +43,99 @@
 			});
 		};
 
+		var eventMatchers = {
+			'HTMLEvents': {
+				isEvent: function(eventName) {
+					return /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/.test(eventName);
+				},
+				fireEvent: function(element, eventName, options) {
+					var oEvent = null;
+					if ($document[0].createEvent) {
+						oEvent = document.createEvent('HTMLEvents');
+						oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+						element.dispatchEvent(oEvent);
+					} else {
+						options.clientX = options.pointerX;
+						options.clientY = options.pointerY;
+						var evt = $document[0].createEventObject();
+						oEvent = extend(evt, options);
+						element.fireEvent('on' + eventName, oEvent);
+					}
+				}
+			},
+			'MouseEvents': {
+				isEvent: function(eventName) {
+					return /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/.test(eventName);
+				},
+				fireEvent: function(element, eventName, options) {
+					var oEvent = null;
+					if ($document[0].createEvent) {
+						oEvent = document.createEvent('MouseEvents');
+						oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, $document[0].defaultView,
+						options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
+						options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, options.element);
+						element.dispatchEvent(oEvent);
+					} else {
+						options.clientX = options.pointerX;
+						options.clientY = options.pointerY;
+						var evt = $document[0].createEventObject();
+						oEvent = extend(evt, options);
+						element.fireEvent('on' + eventName, oEvent);
+					}
+				}
+			}
+		};
+		var defaultOptions = {
+			pointerX: 0,
+			pointerY: 0,
+			button: 0,
+			ctrlKey: false,
+			altKey: false,
+			shiftKey: false,
+			metaKey: false,
+			bubbles: true,
+			cancelable: true
+		};
+
+		this.emulateEvent = function simulate(element, eventName) {
+			var options = arguments[2] ? arguments[2] : angular.copy(defaultOptions);
+			options.element = options.element ? options.element : element
+			var fireEventFn = null;
+
+			for (var name in eventMatchers) {
+				if (eventMatchers[name].isEvent(eventName)) {
+					fireEventFn = eventMatchers[name].fireEvent;
+					break;
+				}
+			}
+
+			if (!fireEventFn) {
+				throw new SyntaxError('Only HTMLEvents and MouseEvents interfaces are supported');
+			}
+
+			fireEventFn(element, eventName, options);
+		};
+
 	});
 
-	module.directive('nzIncludeTransclude', function() {
+	module.directive('nzTranscludedInclude', function() {
 		return {
 			restrict: "A",
 			transclude: true,
 			templateUrl: function(element, attrs) {
 				return attrs[this.name];
+			},
+		}
+	});
+
+	module.directive('nzFakeDocClick', function($document, $timeout, nzService) {
+		return {
+			link: function(scope, $element, $attrs) {
+				$element.on('click', function(event) {
+					$timeout(function() {
+						nzService.emulateEvent($document[0].body, 'click', event);
+					}, 0, false);
+				});
 			},
 		}
 	});
