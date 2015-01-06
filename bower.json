@@ -1,12 +1,12 @@
 {
 	"name": "nz-services",
 	"description": "Client Services",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"homepage": "https://github.com/EnzeyNet/Services",
 	"bugs": "https://github.com/EnzeyNet/Services/issues",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/EnzeyNet/Services.git"
+		"url": "git://github.com/EnzeyNet/Services.git"
 	},
 	"main": "dist/Services.js",
 	"ignore": "!dist",
