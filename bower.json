@@ -9,7 +9,10 @@
 		"url": "git://github.com/EnzeyNet/Services.git"
 	},
 	"main": "dist/Services.js",
-	"ignore": "!dist",
+	"ignore": [
+		"**/*",
+		"!dist/*"
+	],
 	"keywords": [
 		"angular"
 	],
