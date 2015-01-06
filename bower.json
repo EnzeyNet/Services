@@ -1,23 +1,25 @@
 {
-	"name": "CSSRuleEditor",
-	"description": "CSS editor",
-	"version": "0.0.1",
-	"homepage": "https://github.com/EnzeyNet/CSSRuleEditor",
-	"bugs": "https://github.com/EnzeyNet/CSSRuleEditor/issues",
-	"author": {
-		"name": "Joseph Aspelund",
-		"email": "enzey@enzey.net",
-		"url": "https://github.com/Xanir"
-	},
+	"name": "nz-services",
+	"description": "Client Services",
+	"version": "0.1.1",
+	"homepage": "https://github.com/EnzeyNet/Services",
+	"bugs": "https://github.com/EnzeyNet/Services/issues",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/EnzeyNet/CSSRuleEditor.git"
+		"url": "https://github.com/EnzeyNet/Services.git"
 	},
+	"main": "dist/Services.js",
+	"ignore": "!dist",
 	"keywords": [
 		"angular"
 	],
 	"dependencies": {
 		"angular": "1.2.x",
 		"angular-mocks": "~1.2.x"
+	},
+	"author": {
+		"name": "Joseph Aspelund",
+		"email": "enzey@enzey.net",
+		"url": "https://github.com/Xanir"
 	}
 }
