@@ -3,8 +3,7 @@
 
 	var module = angular.module('net.enzey.services', []);
 
-	module.service('nzService', ['$document', '$timeout', function ($document, $timeout) {
-		// position flyout
+	module.service('nzService', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
 
 		var getChildElems = function(elem) {
 			var childElems = [];
@@ -42,6 +41,25 @@
 				$document.on('click', wrappedClickAwayAction);
 			});
 		};
+
+		var getJsStyleName = function(styleName) {
+			var firstCharacterRegex = new RegExp('^.');
+			styleName = styleName.split('-');
+			for (var i = 1; i < styleName.length; i++) {
+				styleName[i] = styleName[i].replace(firstCharacterRegex, styleName[i][0].toUpperCase());
+			}
+			return styleName.join('');
+		};
+
+		this.copyComputedStyles = function(toElement, fromElement) {
+			var comStyle = $window.getComputedStyle(fromElement);
+			for (var i = 0; i < comStyle.length; i++) {
+				var styleName = getJsStyleName(comStyle[i]);
+				toElement.style[ styleName ] = comStyle[ styleName ];
+			}
+
+			return toElement;
+		}
 
 		var eventMatchers = {
 			'HTMLEvents': {
@@ -138,6 +156,33 @@
 				});
 			},
 		}
+	}]);
+
+	module.directive('nzSquelchEvent', ['$parse', function($parse) {
+		return {
+			compile: function ($element, $attrs) {
+				var directiveName = this.name;
+				var events = $attrs[directiveName];
+				events = events.split(',');
+				events = events.map(function(eventType) {return eventType.trim()});
+
+				var squelchCondition = $attrs['squelchCondition'];
+
+				return function(scope, element, attrs) {
+					var squelchEvent = true;
+					if (angular.isDefined(squelchCondition)) {
+						squelchEvent = $parse(squelchCondition)(scope);
+					}
+					if (squelchEvent) {
+						events.forEach(function(eventType) {
+							element.bind(eventType, function(event) {
+								event.stopPropagation();
+							});
+						});
+					}
+				};
+			}
+		};
 	}]);
 
 })(angular);
