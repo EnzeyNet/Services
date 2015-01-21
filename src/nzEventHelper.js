@@ -1,46 +1,9 @@
 (function (angular) {
     "use strict";
 
-	var module = angular.module('net.enzey.services.dom', []);
-
-	module.service('nzDomHelper', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
-
-		this.isElementFullyInViewport = function(elem) {
-			var boundingBox = elem.getBoundingClientRect();
-
-			var viewportHeight = ($window.innerHeight || $document[0].documentElement.clientHeight);
-			var viewportWidth =  ($window.innerWidth || $document[0].documentElement.clientWidth);
-
-			// Has Negative Position
-			if (0 > boundingBox.bottom) {return false;}
-			if (0 > boundingBox.right)  {return false;}
-
-			// Is out of viewport
-			if (viewportHeight < boundingBox.bottom) {return false;}
-			if (viewportWidth  < boundingBox.right)  {return false;}
-
-			return true;
-		};
-
-		this.isElementAboveViewport = function(elem) {
-			return elem.getBoundingClientRect().top < 0;
-		};
-
-		this.isElementBelowViewport = function(elem) {
-			var viewportHeight = ($window.innerHeight || $document[0].documentElement.clientHeight);
-			return elem.getBoundingClientRect().bottom > viewportHeight;
-		};
-
-	}]);
-
-})(angular);
-//End of file
-(function (angular) {
-    "use strict";
-
 	var module = angular.module('net.enzey.services.events', []);
 
-	module.service('nzEventHelper', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
+	module.service('nzEventHelper', function ($window, $document, $timeout) {
 
 		var eventMatchers = {
 			'HTMLEvents': {
@@ -152,9 +115,9 @@
 			});
 		};
 
-	}]);
+	});
 
-	module.directive('nzFakeDocClick', ['$document', '$timeout', 'nzEventHelper', function($document, $timeout, nzEventHelper) {
+	module.directive('nzFakeDocClick', function($document, $timeout, nzEventHelper) {
 		return {
 			link: function(scope, $element, $attrs) {
 				$element.on('click', function(event) {
@@ -164,92 +127,6 @@
 				});
 			},
 		}
-	}]);
-
-})(angular);
-//End of file
-(function (angular) {
-    "use strict";
-
-	var module = angular.module('net.enzey.services.directives', []);
-
-	module.directive('nzTranscludedInclude', function() {
-		return {
-			restrict: "A",
-			transclude: true,
-			templateUrl: function(element, attrs) {
-				return attrs[this.name];
-			},
-		}
 	});
-
-	module.directive('nzSquelchEvent', ['$parse', function($parse) {
-		return {
-			compile: function ($element, $attrs) {
-				var directiveName = this.name;
-				var events = $attrs[directiveName];
-				events = events.split(',');
-				events = events.map(function(eventType) {return eventType.trim()});
-
-				var squelchCondition = $attrs['squelchCondition'];
-
-				return function(scope, element, attrs) {
-					var squelchEvent = true;
-					if (angular.isDefined(squelchCondition)) {
-						squelchEvent = $parse(squelchCondition)(scope);
-					}
-					if (squelchEvent) {
-						events.forEach(function(eventType) {
-							element.bind(eventType, function(event) {
-								event.stopPropagation();
-							});
-						});
-					}
-				};
-			}
-		};
-	}]);
-
-})(angular);
-//End of file
-(function (angular) {
-    "use strict";
-
-	var module = angular.module('net.enzey.services', [
-		'net.enzey.services.directives',
-		'net.enzey.services.dom',
-		'net.enzey.services.events',
-		'net.enzey.services.styles',
-	]);
-
-})(angular);
-//End of file
-(function (angular) {
-    "use strict";
-
-	var module = angular.module('net.enzey.services.styles', []);
-
-	module.service('nzStyleHelper', ['$window', '$document', '$timeout', function ($window, $document, $timeout) {
-
-		var getJsStyleName = function(styleName) {
-			var firstCharacterRegex = new RegExp('^.');
-			styleName = styleName.split('-');
-			for (var i = 1; i < styleName.length; i++) {
-				styleName[i] = styleName[i].replace(firstCharacterRegex, styleName[i][0].toUpperCase());
-			}
-			return styleName.join('');
-		};
-
-		this.copyComputedStyles = function(toElement, fromElement) {
-			var comStyle = $window.getComputedStyle(fromElement);
-			for (var i = 0; i < comStyle.length; i++) {
-				var styleName = getJsStyleName(comStyle[i]);
-				toElement.style[ styleName ] = comStyle[ styleName ];
-			}
-
-			return toElement;
-		}
-
-	}]);
 
 })(angular);
