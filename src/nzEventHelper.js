@@ -115,6 +115,34 @@
 			});
 		};
 
+		this.registerDragHandler = function(mdElem, startMoveFunction, moveFunction, endMoveFunction, delay) {
+			mdElem.on('mousedown', function(mouseDownEvent) {
+				mouseDownEvent.preventDefault();
+				startMoveFunction(mouseDownEvent);
+
+				var originalMouseX = mouseDownEvent.pageX;
+				var originalMouseY = mouseDownEvent.pageY;
+
+				var updateFnId;
+				var moveAction = function(mouseMoveEvent) {
+					$timeout.cancel(updateFnId);
+					var xDelta = mouseMoveEvent.pageX - originalMouseX;
+					var yDelta = mouseMoveEvent.pageY - originalMouseY;
+					updateFnId = $timeout(function() {
+						moveFunction(xDelta, yDelta, mouseDownEvent, mouseMoveEvent);
+					}, delay >= 0 ? delay : 5, false);
+				};
+				$document.on('mousemove', moveAction);
+
+				var mouseUpAction = function(mouseUpEvent) {
+					$document.off('mousemove', moveAction);
+					$timeout.cancel(updateFnId);
+					$document.off('mouseup', mouseUpAction);
+					endMoveFunction(mouseUpEvent);
+				};
+				$document.on('mouseup', mouseUpAction);
+			});
+		}
 	});
 
 	module.directive('nzFakeDocClick', function($document, $timeout, nzEventHelper) {
