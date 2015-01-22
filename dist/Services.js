@@ -152,7 +152,7 @@
 			});
 		};
 
-		this.registerDragHandler = function(mdElem, startMoveFunction, moveFunction, endMoveFunction, delay) {
+		this.registerMouseDragHandler = function(mdElem, startMoveFunction, moveFunction, endMoveFunction, delay) {
 			mdElem.on('mousedown', function(mouseDownEvent) {
 				mouseDownEvent.preventDefault();
 				startMoveFunction(mouseDownEvent);
@@ -179,7 +179,51 @@
 				};
 				$document.on('mouseup', mouseUpAction);
 			});
-		}
+		};
+
+		var currentDrag = {};
+		this.registerDragHandler = function(draggableElem, dragType, dragStartAction, dragEndAction) {
+			draggableElem.setAttribute('draggable', true);
+
+			draggableElem.addEventListener('dragstart', function(event) {
+				event.dataTransfer.setData("text/html", draggableElem.outerHTML);
+				event.dataTransfer.setData("text/plain", draggableElem.outerText);
+				event.dataTransfer.setData("application/octet-stream", draggableElem.outerText);
+				currentDrag.element = draggableElem;
+				currentDrag.type = dragType;
+
+				if (typeof dragStartAction === 'function') {dragStartAction(event);}
+			});
+			draggableElem.addEventListener('dragend', function(event) {
+				currentDrag = {};
+				if (typeof dragEndAction === 'function') {dragEndAction(event);}
+			});
+		};
+
+		this.registerDropHandler = function(droppableElem, dragType, dragEnterAction, dragOverAction, dragLeaveAction, dropAction) {
+			droppableElem.addEventListener("dragenter", function(event) {
+				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+
+				if (typeof dragEnterAction === 'function') {dragEnterAction(event);}
+			});
+			droppableElem.addEventListener("dragover", function(event) {
+				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+				event.preventDefault();
+
+				if (typeof dragOverAction === 'function') {dragOverAction(event);}
+			});
+			droppableElem.addEventListener("dragleave", function(event) {
+				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+
+				if (typeof dragLeaveAction === 'function') {dragLeaveAction(event);}
+			});
+			droppableElem.addEventListener('drop', function(event) {
+				event.preventDefault();
+
+				if (typeof dropAction === 'function') {dropAction(currentDrag.element, droppableElem, event);}
+			});
+		};
+
 	}]);
 
 	module.directive('nzFakeDocClick', ['$document', '$timeout', 'nzEventHelper', function($document, $timeout, nzEventHelper) {
