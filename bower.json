@@ -15,7 +15,7 @@
 	"keywords": [
 		"angular"
 	],
-	"dependencies": {
+	"devDependencies": {
 		"angular": "1.2.x",
 		"angular-mocks": "~1.2.x"
 	},
