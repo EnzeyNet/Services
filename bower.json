@@ -1,7 +1,6 @@
 {
 	"name": "nz-services",
 	"description": "Client Services",
-	"version": "N/A - repo tags are used instead",
 	"homepage": "https://github.com/EnzeyNet/Services",
 	"bugs": "https://github.com/EnzeyNet/Services/issues",
 	"repository": {
