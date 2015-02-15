@@ -36,7 +36,7 @@
 })(angular);
 //End of file
 (function (angular) {
-    "use strict";
+	"use strict";
 
 	var module = angular.module('net.enzey.services.events', []);
 
@@ -153,7 +153,9 @@
 		};
 
 		this.registerMouseDragHandler = function(mdElem, startMoveFunction, moveFunction, endMoveFunction, delay) {
-			mdElem.on('mousedown', function(mouseDownEvent) {
+			if (!mdElem instanceof Node) {throw "'mdElem' must be a DOM Node"}
+
+			mdElem.addEventListener('mousedown', function(mouseDownEvent) {
 				mouseDownEvent.preventDefault();
 				startMoveFunction(mouseDownEvent);
 
@@ -183,6 +185,8 @@
 
 		var currentDrag = {};
 		this.registerDragHandler = function(draggableElem, dragType, dragStartAction, dragEndAction) {
+			if (!draggableElem instanceof Node) {throw "'draggableElem' must be a DOM Node"}
+
 			draggableElem.setAttribute('draggable', true);
 
 			draggableElem.addEventListener('dragstart', function(event) {
@@ -201,10 +205,19 @@
 		};
 
 		this.registerDropHandler = function(droppableElem, dragType, dragEnterAction, dragOverAction, dragLeaveAction, dropAction) {
-			droppableElem.addEventListener("dragenter", function(event) {
-				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+			if (!droppableElem instanceof Node) {throw "'droppableElem' must be a DOM Node";}
 
-				if (typeof dragEnterAction === 'function') {dragEnterAction(event);}
+			var dropTargetActive = false;
+			var ignoreLeave = false;
+			droppableElem.addEventListener("dragenter", function(event) {
+				if (!dropTargetActive) {
+					if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+					dropTargetActive = true;
+
+					if (typeof dragEnterAction === 'function') {dragEnterAction(event);}
+				} else {
+					ignoreLeave = true;
+				}
 			});
 			droppableElem.addEventListener("dragover", function(event) {
 				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
@@ -213,9 +226,13 @@
 				if (typeof dragOverAction === 'function') {dragOverAction(event);}
 			});
 			droppableElem.addEventListener("dragleave", function(event) {
-				if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+				if (!ignoreLeave) {
+					if (currentDrag.element === droppableElem || currentDrag.type !== dragType) {return;}
+					dropTargetActive = false;
 
-				if (typeof dragLeaveAction === 'function') {dragLeaveAction(event);}
+					if (typeof dragLeaveAction === 'function') {dragLeaveAction(event);}
+				}
+				ignoreLeave = false;
 			});
 			droppableElem.addEventListener('drop', function(event) {
 				event.preventDefault();
